@@ -807,7 +807,7 @@
 
     ${renderKeyMeasurements(bottomHeightMM, topHeightMM, railScrewHeightMM, totalWidthMM)}
     ${renderCabinetCards(cabinets, railScrewHeightMM)}
-    ${renderDiagram(cabinets, bottomHeightMM, topHeightMM, railScrewHeightMM, leftEdgeMM)}
+    ${renderDiagram(cabinets, bottomHeightMM, topHeightMM, railScrewHeightMM, leftEdgeMM, studHints)}
     ${renderInstructions(cabinets, railScrewHeightMM)}
   `;
       }
@@ -888,7 +888,7 @@
           .join('');
       }
 
-      function renderDiagram(cabinets, bottom, top, railH, leftEdge) {
+      function renderDiagram(cabinets, bottom, top, railH, leftEdge, studHints) {
         const allRight = cabinets[cabinets.length - 1].endX;
         const totalW = allRight - leftEdge;
 
@@ -917,6 +917,16 @@
         // Cabinet top line
         svgContent += `<line x1="${margin.left}" y1="${yScale(top)}" x2="${W - margin.right}" y2="${yScale(top)}" stroke="#3D3830" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>`;
         svgContent += `<text x="${W - margin.right + 6}" y="${yScale(top) + 4}" font-size="9" fill="#3D3830" font-family="DM Mono,monospace" opacity="0.6">${fmt(top)}</text>`;
+
+        // Stud lines
+        if (studHints && studHints.length > 0) {
+          studHints.forEach((sx) => {
+            const px = xScale(sx);
+            if (px >= margin.left && px <= W - margin.right) {
+              svgContent += `<line x1="${px}" y1="${yScale(0)}" x2="${px}" y2="${margin.top}" stroke="#8A8274" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>`;
+            }
+          });
+        }
 
         // Cabinets
         cabinets.forEach((cab, i) => {
@@ -947,12 +957,19 @@
   `;
 
         // Legend
-        svgContent += `
+        let legendSvg = `
     <circle cx="${margin.left + 12}" cy="${H - 10}" r="5" fill="#D4622A"/>
-    <text x="${margin.left + 22}" y="${H - 6}" font-size="9" fill="#3D3830" font-family="DM Sans,sans-serif">Rail centre (pick screw holes per studs)</text>
-    <line x1="${margin.left + 110}" y1="${H - 10}" x2="${margin.left + 126}" y2="${H - 10}" stroke="#D4622A" stroke-width="2" stroke-dasharray="4 2"/>
-    <text x="${margin.left + 132}" y="${H - 6}" font-size="9" fill="#3D3830" font-family="DM Sans,sans-serif">Rail height line</text>
+    <text x="${margin.left + 22}" y="${H - 6}" font-size="9" fill="#3D3830" font-family="DM Sans,sans-serif">Rail centre</text>
+    <line x1="${margin.left + 90}" y1="${H - 10}" x2="${margin.left + 106}" y2="${H - 10}" stroke="#D4622A" stroke-width="2" stroke-dasharray="4 2"/>
+    <text x="${margin.left + 112}" y="${H - 6}" font-size="9" fill="#3D3830" font-family="DM Sans,sans-serif">Rail height line</text>
   `;
+        if (studHints && studHints.length > 0) {
+          legendSvg += `
+    <line x1="${margin.left + 208}" y1="${H - 14}" x2="${margin.left + 208}" y2="${H - 4}" stroke="#8A8274" stroke-width="1" stroke-dasharray="3 3" opacity="0.8"/>
+    <text x="${margin.left + 216}" y="${H - 6}" font-size="9" fill="#3D3830" font-family="DM Sans,sans-serif">Stud</text>
+  `;
+        }
+        svgContent += legendSvg;
 
         return `
     <div class="diagram-wrap">
