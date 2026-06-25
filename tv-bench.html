@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BESTÅ TV Bench Calculator</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,300&display=swap');
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --cream: #f7f4ee;
+        --dark: #1a1714;
+        --mid: #3d3830;
+        --muted: #8a8274;
+        --accent: #d4622a;
+        --accent-soft: #f0ddd4;
+        --bracket-teal: #1e6b6b;
+        --bracket-teal-soft: #d4ecec;
+        --green: #2e6b4a;
+        --green-soft: #d4ebe0;
+        --border: #ddd8d0;
+      }
+
+      body {
+        font-family: 'DM Sans', system-ui, sans-serif;
+        background: var(--cream);
+        color: var(--dark);
+        min-height: 100vh;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      header {
+        border-bottom: 1.5px solid var(--dark);
+        padding: 18px 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .logo-mark {
+        width: 36px;
+        height: 36px;
+        background: var(--dark);
+        border-radius: 4px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+      }
+      .logo-mark svg {
+        width: 22px;
+        height: 22px;
+      }
+
+      header h1 {
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      header p {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 300;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        min-height: calc(100vh - 73px);
+      }
+
+      /* ── SIDEBAR ── */
+      .sidebar {
+        border-right: 1.5px solid var(--border);
+        padding: 28px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+        overflow-y: auto;
+      }
+
+      .section-label {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 12px;
+      }
+
+      .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .field label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 6px;
+        color: var(--mid);
+      }
+      .field .hint {
+        font-size: 11.5px;
+        color: var(--muted);
+        margin-top: 4px;
+        font-weight: 300;
+      }
+
+      .units-toggle {
+        display: flex;
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+        width: fit-content;
+      }
+      .units-toggle button {
+        padding: 6px 16px;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--muted);
+        transition: all 0.15s;
+      }
+      .units-toggle button.active {
+        background: var(--dark);
+        color: white;
+      }
+
+      select,
+      input[type='number'] {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        background: white;
+        color: var(--dark);
+        appearance: none;
+        transition: border-color 0.15s;
+      }
+      select:focus,
+      input[type='number']:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238A8274' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 32px;
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 12px;
+        background: var(--dark);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        letter-spacing: -0.01em;
+        transition: opacity 0.15s;
+      }
+      .btn-primary:hover {
+        opacity: 0.85;
+      }
+
+      /* ── MAIN ── */
+      .main {
+        padding: 28px 32px;
+        overflow-y: auto;
+      }
+
+      .placeholder {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        color: var(--muted);
+        text-align: center;
+      }
+      .placeholder svg {
+        opacity: 0.25;
+      }
+      .placeholder p {
+        font-size: 14px;
+        font-weight: 300;
+        max-width: 260px;
+      }
+
+      /* ── RESULTS ── */
+      .results {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .result-header {
+        padding-bottom: 16px;
+        border-bottom: 1.5px solid var(--border);
+      }
+      .result-header h2 {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .result-header p {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      .card {
+        background: white;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .card-header {
+        padding: 14px 18px;
+        border-bottom: 1.5px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .card-header .icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+      }
+      .card-header h3 {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .card-body {
+        padding: 16px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .measurement-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px;
+        border-radius: 6px;
+        border: 1.5px solid var(--border);
+      }
+      .measurement-row .m-label {
+        font-size: 13px;
+        color: var(--mid);
+      }
+      .measurement-row .m-value {
+        font-family: 'DM Mono', monospace;
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--dark);
+      }
+      .measurement-row.highlight {
+        background: var(--accent-soft);
+        border-color: var(--accent);
+      }
+      .measurement-row.highlight .m-value {
+        color: var(--accent);
+      }
+      .measurement-row.teal {
+        background: var(--bracket-teal-soft);
+        border-color: var(--bracket-teal);
+      }
+      .measurement-row.teal .m-value {
+        color: var(--bracket-teal);
+      }
+
+      .note {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 10px 14px;
+        background: var(--green-soft);
+        border: 1.5px solid var(--green);
+        border-radius: 6px;
+        font-size: 12.5px;
+        color: #1e4d32;
+        line-height: 1.5;
+      }
+      .note svg {
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      .warn {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 10px 14px;
+        background: #fef3e2;
+        border: 1.5px solid #e8a020;
+        border-radius: 6px;
+        font-size: 12.5px;
+        color: #7a4a00;
+        line-height: 1.5;
+      }
+      .warn svg {
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      /* ── DIAGRAM ── */
+      .diagram-wrap {
+        background: white;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+      }
+      .diagram-wrap h3 {
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-size: 10.5px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: var(--mid);
+      }
+      svg.diagram {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .steps-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .step {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .step-num {
+        width: 24px;
+        height: 24px;
+        background: var(--dark);
+        color: white;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-size: 11px;
+        font-weight: 700;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .step-text {
+        font-size: 13px;
+        color: var(--mid);
+        padding-top: 3px;
+        line-height: 1.55;
+      }
+      .step-text strong {
+        color: var(--dark);
+      }
+
+      .bench-mode-toggle {
+        display: flex;
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .bench-mode-toggle button {
+        flex: 1;
+        padding: 8px 10px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12.5px;
+        font-weight: 500;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--muted);
+        transition: all 0.15s;
+        line-height: 1.3;
+        text-align: center;
+      }
+      .bench-mode-toggle button.active {
+        background: var(--dark);
+        color: white;
+      }
+
+      .divider {
+        border: none;
+        border-top: 1.5px solid var(--border);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo-mark">
+        <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect
+            x="2"
+            y="9"
+            width="18"
+            height="10"
+            rx="1.5"
+            stroke="white"
+            stroke-width="1.6"
+          />
+          <path
+            d="M5 9V7a6 6 0 0112 0v2"
+            stroke="white"
+            stroke-width="1.6"
+            stroke-linecap="round"
+          />
+          <circle cx="8" cy="14" r="1.5" fill="white" />
+          <circle cx="14" cy="14" r="1.5" fill="white" />
+        </svg>
+      </div>
+      <div>
+        <h1>BESTÅ TV Bench — Wall Bracket Calculator</h1>
+        <p>
+          Exact screw positions for floating TV benches · Not compatible with
+          suspension rail
+        </p>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div>
+          <div class="section-label">Units</div>
+          <div class="units-toggle">
+            <button class="active" onclick="setUnit('mm')">mm</button>
+            <button onclick="setUnit('cm')">cm</button>
+            <button onclick="setUnit('in')">in</button>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <div>
+          <div class="section-label">Bench configuration</div>
+          <div class="field-group">
+            <div class="field">
+              <label>TV bench width</label>
+              <select id="benchWidth" onchange="onConfigChange()">
+                <option value="120">120 cm wide (47¼")</option>
+                <option value="180">180 cm wide (70⅞")</option>
+              </select>
+              <div class="hint">
+                Only the 38 cm tall (15") bench can be wall-mounted. The 64 cm
+                tall bench stands on legs only.
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Mounting mode</label>
+              <div class="bench-mode-toggle">
+                <button
+                  class="active"
+                  id="modeWallBtn"
+                  onclick="setMode('wall')"
+                >
+                  Wall-hung<br /><span
+                    style="font-size: 10.5px; font-weight: 300; opacity: 0.75"
+                    >floating off floor</span
+                  >
+                </button>
+                <button id="modeFloorBtn" onclick="setMode('floor')">
+                  Floor-standing<br /><span
+                    style="font-size: 10.5px; font-weight: 300; opacity: 0.75"
+                    >tethered to wall</span
+                  >
+                </button>
+              </div>
+              <div class="hint" id="modeHint">
+                Bench is fully suspended on wall brackets. Legs not used.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <div id="heightSection">
+          <div class="section-label">Height</div>
+          <div class="field-group">
+            <div class="field" id="bottomHeightField">
+              <label id="bottomHeightLabel"
+                >Desired bottom of bench from floor</label
+              >
+              <input
+                type="number"
+                id="bottomHeight"
+                value="600"
+                min="0"
+                step="1"
+                oninput="onConfigChange()"
+              />
+              <div class="hint" id="bottomHeightHint">
+                How high off the floor you want the underside of the bench.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <div>
+          <div class="section-label">Wall position</div>
+          <div class="field-group">
+            <div class="field">
+              <label>Left edge of bench from reference point</label>
+              <input
+                type="number"
+                id="leftEdge"
+                value="0"
+                min="0"
+                step="1"
+                oninput="onConfigChange()"
+              />
+              <div class="hint">
+                Distance from a fixed reference (corner, door frame) to the left
+                edge of your bench.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="calculate()">
+          Calculate drill positions
+        </button>
+      </aside>
+
+      <main class="main" id="main">
+        <div class="placeholder">
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 64 64"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              x="8"
+              y="28"
+              width="48"
+              height="24"
+              rx="3"
+              stroke="#8A8274"
+              stroke-width="2"
+            />
+            <path
+              d="M16 28V22a16 16 0 0132 0v6"
+              stroke="#8A8274"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <circle cx="20" cy="40" r="3" fill="#8A8274" />
+            <circle cx="32" cy="40" r="3" fill="#8A8274" />
+            <circle cx="44" cy="40" r="3" fill="#8A8274" />
+          </svg>
+          <p>
+            Set your bench width, mounting mode, and desired height, then tap
+            Calculate.
+          </p>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // ─────────────────────────────────────────────
+      // CONSTANTS (all in mm)
+      // Source: IKEA BESTÅ TV bench assembly PDFs
+      //   120cm: AA-1402060, 180cm: AA-1402080
+      //
+      // Bracket positions from LEFT edge of bench:
+      //   120cm: bracket at 44mm and 644mm  (spacing = 600mm)
+      //   180cm: brackets at 43mm, 643mm, 1157mm, 1757mm
+      //          (gaps = 600 + 514 + 600)
+      //
+      // Bracket wall-screw height = 80mm from bottom of bench
+      // (measured at bench bottom in wall-hung mode)
+      // ─────────────────────────────────────────────
+
+      const BRACKET_CONFIGS = {
+        120: {
+          benchWidthMM: 1200,
+          benchHeightMM: 380,
+          brackets: [44, 644], // from left edge of bench
+          bracketScrewOffsetMM: 80, // from bottom of bench to screw centre
+        },
+        180: {
+          benchWidthMM: 1800,
+          benchHeightMM: 380,
+          brackets: [43, 643, 1157, 1757],
+          bracketScrewOffsetMM: 80,
+        },
+      };
+
+      // Leg height for floor-standing mode
+      // STUBBARP / NANNARP (standard) = 100mm; adjustable range ~90–115mm
+      // We use 100mm as the default — user can't change legs height since
+      // it only affects how far the bench sits above the floor, not the
+      // bracket-to-bench geometry.
+      const LEG_HEIGHT_MM = 100;
+
+      let unit = 'mm';
+      let mode = 'wall'; // 'wall' or 'floor'
+
+      function setUnit(u) {
+        unit = u;
+        document
+          .querySelectorAll('.units-toggle button')
+          .forEach((b) => b.classList.toggle('active', b.textContent === u));
+        // Re-sync input placeholder values to selected unit
+        syncInputPlaceholders();
+        onConfigChange();
+      }
+
+      function setMode(m) {
+        mode = m;
+        document
+          .getElementById('modeWallBtn')
+          .classList.toggle('active', m === 'wall');
+        document
+          .getElementById('modeFloorBtn')
+          .classList.toggle('active', m === 'floor');
+
+        if (m === 'wall') {
+          document.getElementById('bottomHeightLabel').textContent =
+            'Desired bottom of bench from floor';
+          document.getElementById('bottomHeightHint').textContent =
+            'How high off the floor you want the underside of the bench.';
+          document.getElementById('modeHint').textContent =
+            'Bench is fully suspended on wall brackets. Legs not used.';
+        } else {
+          document.getElementById('bottomHeightLabel').textContent =
+            'Leg height (floor to underside of bench)';
+          document.getElementById('bottomHeightHint').textContent =
+            `Standard STUBBARP/NANNARP legs are 10 cm. Adjust if using different legs.`;
+          document.getElementById('modeHint').textContent =
+            'Bench rests on legs. Wall brackets are tethers only — they prevent tip-over, not carry the weight.';
+          // Set a sensible default for leg height
+          const input = document.getElementById('bottomHeight');
+          if (parseFloat(input.value) > 200 && unit === 'mm') input.value = 100;
+          if (parseFloat(input.value) > 20 && unit === 'cm') input.value = 10;
+          if (parseFloat(input.value) > 8 && unit === 'in') input.value = '3.9';
+        }
+        onConfigChange();
+      }
+
+      function syncInputPlaceholders() {
+        // Keep input values consistent when switching units
+        // (values are stored and read in display unit)
+      }
+
+      function toMM(val) {
+        if (unit === 'mm') return parseFloat(val);
+        if (unit === 'cm') return parseFloat(val) * 10;
+        if (unit === 'in') return parseFloat(val) * 25.4;
+        return parseFloat(val);
+      }
+
+      function fmt(mm) {
+        if (unit === 'mm') return `${Math.round(mm)} mm`;
+        if (unit === 'cm') return `${(mm / 10).toFixed(1)} cm`;
+        if (unit === 'in') return `${(mm / 25.4).toFixed(2)}"`;
+      }
+
+      function fmtShort(mm) {
+        if (unit === 'mm') return `${Math.round(mm)}`;
+        if (unit === 'cm') return `${(mm / 10).toFixed(1)}`;
+        if (unit === 'in') return `${(mm / 25.4).toFixed(2)}`;
+      }
+
+      function onConfigChange() {
+        // Live-update if results already shown
+        const main = document.getElementById('main');
+        if (main.querySelector('.results')) calculate();
+      }
+
+      function calculate() {
+        const widthKey = parseInt(document.getElementById('benchWidth').value);
+        const cfg = BRACKET_CONFIGS[widthKey];
+        const bottomInputMM = toMM(
+          document.getElementById('bottomHeight').value || 0,
+        );
+        const leftEdgeMM = toMM(document.getElementById('leftEdge').value || 0);
+
+        // In wall-hung mode: bottomInputMM is the desired bench bottom height from floor
+        // In floor-standing mode: bottomInputMM is the leg height (bench bottom from floor)
+        const benchBottomFromFloor = bottomInputMM;
+        const benchTopFromFloor = benchBottomFromFloor + cfg.benchHeightMM;
+
+        // Wall screw positions
+        // Vertical: bracket screw centre = benchBottomFromFloor + bracketScrewOffsetMM
+        const screwHeightFromFloor =
+          benchBottomFromFloor + cfg.bracketScrewOffsetMM;
+
+        // Horizontal: bracket positions relative to wall left-reference
+        const bracketXPositions = cfg.brackets.map((b) => leftEdgeMM + b);
+
+        const main = document.getElementById('main');
+        main.innerHTML = `
+    <div class="results">
+      ${renderResultHeader(widthKey, mode, benchBottomFromFloor, benchTopFromFloor)}
+      ${renderKeyMeasurements(benchBottomFromFloor, benchTopFromFloor, screwHeightFromFloor, cfg.benchWidthMM, mode)}
+      ${renderBracketCard(bracketXPositions, screwHeightFromFloor, cfg.brackets, widthKey)}
+      ${renderDiagram(bracketXPositions, leftEdgeMM, cfg.benchWidthMM, benchBottomFromFloor, benchTopFromFloor, screwHeightFromFloor)}
+      ${renderInstructions(bracketXPositions, screwHeightFromFloor, widthKey, mode)}
+    </div>
+  `;
+      }
+
+      function renderResultHeader(width, mode, bottom, top) {
+        const modeLabel =
+          mode === 'wall' ? 'wall-hung' : 'floor-standing, tethered';
+        return `
+    <div class="result-header">
+      <h2>BESTÅ TV Bench ${width} cm — ${modeLabel}</h2>
+      <p>Bench occupies ${fmt(bottom)} – ${fmt(top)} from floor · ${BRACKET_CONFIGS[width].brackets.length} wall brackets</p>
+    </div>
+  `;
+      }
+
+      function renderKeyMeasurements(bottom, top, screwH, totalW, mode) {
+        const modeNote =
+          mode === 'wall'
+            ? `Draw a level line at <strong>${fmt(screwH)}</strong> from the floor. All bracket screws go on this single horizontal line.`
+            : `Draw a level line at <strong>${fmt(screwH)}</strong> from the floor. Screw the tether brackets here — the bench rests on its legs independently.`;
+
+        return `
+    <div class="card">
+      <div class="card-header">
+        <div class="icon" style="background:var(--accent-soft)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8h12M8 2v12" stroke="#D4622A" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="2.5" stroke="#D4622A" stroke-width="1.5"/></svg>
+        </div>
+        <h3>Key heights from floor</h3>
+      </div>
+      <div class="card-body">
+        <div class="measurement-row">
+          <span class="m-label">Bench bottom edge</span>
+          <span class="m-value">${fmt(bottom)}</span>
+        </div>
+        <div class="measurement-row">
+          <span class="m-label">Bench top edge</span>
+          <span class="m-value">${fmt(top)}</span>
+        </div>
+        <div class="measurement-row highlight">
+          <span class="m-label">🎯 Bracket screw centre height</span>
+          <span class="m-value">${fmt(screwH)}</span>
+        </div>
+        <div class="note">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#2E6B4A" stroke-width="1.3"/><path d="M8 7v4M8 5.5v.5" stroke="#2E6B4A" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span>${modeNote}</span>
+        </div>
+      </div>
+    </div>
+  `;
+      }
+
+      function renderBracketCard(xPositions, screwH, localOffsets, width) {
+        const rows = xPositions
+          .map(
+            (x, i) => `
+    <div class="measurement-row teal">
+      <span class="m-label">Bracket ${i + 1} — horizontal position from reference</span>
+      <span class="m-value">${fmt(x)}</span>
+    </div>
+  `,
+          )
+          .join('');
+
+        // Show the internal spacing for reference
+        const spacingNote =
+          width === 120
+            ? `2 brackets, spaced <strong>${fmt(localOffsets[1] - localOffsets[0])}</strong> apart (${fmtShort(localOffsets[1] - localOffsets[0])} ${unit} centre-to-centre).`
+            : `4 brackets with ${fmt(localOffsets[1] - localOffsets[0])} / ${fmt(localOffsets[2] - localOffsets[1])} / ${fmt(localOffsets[3] - localOffsets[2])} gaps between them.`;
+
+        return `
+    <div class="card">
+      <div class="card-header">
+        <div class="icon" style="background:var(--bracket-teal-soft)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 12V6l3-3h5v9" stroke="#1E6B6B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9h8" stroke="#1E6B6B" stroke-width="1.4" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Bracket positions on wall</h3>
+      </div>
+      <div class="card-body">
+        <div class="measurement-row">
+          <span class="m-label">Screw height (all brackets)</span>
+          <span class="m-value">${fmt(screwH)}</span>
+        </div>
+        ${rows}
+        <div class="note">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#2E6B4A" stroke-width="1.3"/><path d="M8 7v4M8 5.5v.5" stroke="#2E6B4A" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span>${spacingNote} The screw heights are all identical — mark a single level horizontal line at ${fmt(screwH)}.</span>
+        </div>
+      </div>
+    </div>
+  `;
+      }
+
+      function renderDiagram(
+        xPositions,
+        leftEdge,
+        benchWidthMM,
+        bottom,
+        top,
+        screwH,
+      ) {
+        const rightEdge = leftEdge + benchWidthMM;
+
+        const W = 660,
+          H = 310;
+        const margin = { top: 30, right: 70, bottom: 40, left: 70 };
+        const drawW = W - margin.left - margin.right;
+        const drawH = H - margin.top - margin.bottom;
+
+        const visLeft = leftEdge - benchWidthMM * 0.06;
+        const visRight = rightEdge + benchWidthMM * 0.06;
+        const totalVisW = visRight - visLeft;
+
+        const maxH = top + 80;
+        const xScale = (v) => margin.left + ((v - visLeft) / totalVisW) * drawW;
+        const yScale = (v) => H - margin.bottom - (v / maxH) * drawH;
+
+        let s = '';
+
+        // Floor line
+        s += `<line x1="${margin.left}" y1="${yScale(0)}" x2="${W - margin.right}" y2="${yScale(0)}" stroke="#8A8274" stroke-width="1" stroke-dasharray="4 3"/>`;
+        s += `<text x="${margin.left - 5}" y="${yScale(0) + 4}" text-anchor="end" font-size="9" fill="#8A8274" font-family="DM Mono,monospace">FLOOR</text>`;
+
+        // Bracket screw height line
+        s += `<line x1="${margin.left}" y1="${yScale(screwH)}" x2="${W - margin.right}" y2="${yScale(screwH)}" stroke="#D4622A" stroke-width="2" stroke-dasharray="6 3"/>`;
+        s += `<text x="${W - margin.right + 6}" y="${yScale(screwH) + 4}" font-size="9" fill="#D4622A" font-family="DM Mono,monospace">${fmt(screwH)}</text>`;
+
+        // Bench top guideline
+        s += `<line x1="${margin.left}" y1="${yScale(top)}" x2="${W - margin.right}" y2="${yScale(top)}" stroke="#3D3830" stroke-width="1" stroke-dasharray="3 3" opacity="0.35"/>`;
+        s += `<text x="${W - margin.right + 6}" y="${yScale(top) + 4}" font-size="9" fill="#3D3830" font-family="DM Mono,monospace" opacity="0.55">${fmt(top)}</text>`;
+
+        // Bench body
+        const bx1 = xScale(leftEdge);
+        const bx2 = xScale(rightEdge);
+        const by1 = yScale(top);
+        const by2 = yScale(bottom);
+        s += `<rect x="${bx1 + 1}" y="${by1}" width="${bx2 - bx1 - 2}" height="${by2 - by1}" fill="#D4ECEC" stroke="#1E6B6B" stroke-width="1.5" rx="2"/>`;
+        s += `<text x="${(bx1 + bx2) / 2}" y="${(by1 + by2) / 2 + 5}" text-anchor="middle" font-size="11" fill="#1E6B6B" font-family="DM Sans,sans-serif" font-weight="600">BESTÅ ${benchWidthMM / 10} cm</text>`;
+
+        // Bracket markers
+        xPositions.forEach((x, i) => {
+          const rx = xScale(x);
+          const ry = yScale(screwH);
+          // Vertical line inside bench from screw to top
+          s += `<line x1="${rx}" y1="${ry}" x2="${rx}" y2="${yScale(top) + 1}" stroke="#1E6B6B" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>`;
+          // Screw dot
+          s += `<circle cx="${rx}" cy="${ry}" r="6" fill="#D4622A" stroke="white" stroke-width="1.5"/>`;
+          // Bracket label below
+          s += `<text x="${rx}" y="${yScale(0) + 16}" text-anchor="middle" font-size="8.5" fill="#1E6B6B" font-family="DM Mono,monospace">B${i + 1}</text>`;
+        });
+
+        // Dimension arrow: bottom height
+        const arrowX = margin.left - 22;
+        s += `
+    <line x1="${arrowX}" y1="${yScale(0)}" x2="${arrowX}" y2="${yScale(bottom)}" stroke="#1A1714" stroke-width="1"/>
+    <line x1="${arrowX - 4}" y1="${yScale(bottom) + 3}" x2="${arrowX}" y2="${yScale(bottom) - 2}" stroke="#1A1714" stroke-width="1"/>
+    <line x1="${arrowX + 4}" y1="${yScale(bottom) + 3}" x2="${arrowX}" y2="${yScale(bottom) - 2}" stroke="#1A1714" stroke-width="1"/>
+    <text transform="translate(${arrowX - 8},${(yScale(0) + yScale(bottom)) / 2}) rotate(-90)" text-anchor="middle" font-size="9" fill="#3D3830" font-family="DM Mono,monospace">${fmt(bottom)}</text>
+  `;
+
+        // Legend
+        s += `
+    <circle cx="${margin.left + 10}" cy="${H - 10}" r="5" fill="#D4622A"/>
+    <text x="${margin.left + 20}" y="${H - 6}" font-size="9" fill="#3D3830" font-family="DM Sans,sans-serif">Bracket screw</text>
+    <line x1="${margin.left + 108}" y1="${H - 10}" x2="${margin.left + 124}" y2="${H - 10}" stroke="#D4622A" stroke-width="2" stroke-dasharray="4 2"/>
+    <text x="${margin.left + 130}" y="${H - 6}" font-size="9" fill="#3D3830" font-family="DM Sans,sans-serif">Screw height line</text>
+    <rect x="${margin.left + 230}" y="${H - 15}" width="12" height="8" fill="#D4ECEC" stroke="#1E6B6B" stroke-width="1" rx="1"/>
+    <text x="${margin.left + 247}" y="${H - 6}" font-size="9" fill="#3D3830" font-family="DM Sans,sans-serif">TV bench</text>
+  `;
+
+        return `
+    <div class="diagram-wrap">
+      <h3>Wall diagram (front view)</h3>
+      <svg class="diagram" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+        ${s}
+      </svg>
+    </div>
+  `;
+      }
+
+      function renderInstructions(xPositions, screwH, width, mode) {
+        const bracketList = xPositions
+          .map((x, i) => `<strong>B${i + 1}</strong> at ${fmt(x)}`)
+          .join(', ');
+        const nBrackets = xPositions.length;
+
+        const modeSpecificSteps =
+          mode === 'wall'
+            ? `
+    <div class="step"><div class="step-num">7</div><div class="step-text">With a helper, <strong>lift the assembled bench</strong> (heavy — two people minimum) and hook the bench-side bracket flanges over the wall brackets. They click into place.</div></div>
+    <div class="step"><div class="step-num">8</div><div class="step-text"><strong>Lock each bracket</strong> with the included locking screws (part 103693). Check level and adjust if needed. The bench should feel completely solid.</div></div>
+  `
+            : `
+    <div class="step"><div class="step-num">7</div><div class="step-text"><strong>Position the bench on its legs</strong> against the wall. The tether brackets are already attached to the rear of the bench — align them with your wall marks.</div></div>
+    <div class="step"><div class="step-num">8</div><div class="step-text"><strong>Drive screws through the tether brackets</strong> into your plugs or studs. These don't carry the bench's weight — they prevent the bench from tipping forward.</div></div>
+  `;
+
+        const modeWarning =
+          mode === 'wall'
+            ? `
+    <div class="warn">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L1.5 13.5h13L8 2z" stroke="#E8A020" stroke-width="1.3" fill="none"/><path d="M8 7v3M8 11.5v.5" stroke="#E8A020" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <span>The wall and its fixings carry the full weight of the bench and TV in wall-hung mode. Use rated wall plugs or hit studs. The included brackets are small angle brackets — supplement with your own if mounting into drywall only.</span>
+    </div>
+  `
+            : `
+    <div class="note">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#2E6B4A" stroke-width="1.3"/><path d="M8 7v4M8 5.5v.5" stroke="#2E6B4A" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <span>In floor-standing mode, the legs carry all the weight. The wall tether is a safety device — but IKEA considers it mandatory. Even basic drywall anchors are usually sufficient here since the tether only resists tip-over forces.</span>
+    </div>
+  `;
+
+        return `
+    <div class="card">
+      <div class="card-header">
+        <div class="icon" style="background:var(--green-soft)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#2E6B4A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Step-by-step installation</h3>
+      </div>
+      <div class="card-body">
+        <div class="steps-list">
+          <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Fully assemble the TV bench</strong> on the floor — frame, back panels, dividers, top panel, feet. Do not install shelves, doors or drawer fronts yet.</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Attach the ${nBrackets} wall brackets</strong> (part 103693) to the rear of the assembled bench using the provided screws. The bracket flanges project out from the back.</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-text">Draw a <strong>perfectly level horizontal line</strong> on the wall at <strong>${fmt(screwH)}</strong> from the floor. Use a laser level or spirit level — this is the single line where all screws go.</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-text">Mark the <strong>horizontal positions</strong> along that line: ${bracketList}. All measured from your reference point.</div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-text"><strong>Find studs</strong> with a stud finder. Ideally at least one bracket screw hits a stud. For others use rated wall anchors. Note: bracket spacing (${width === 120 ? '600 mm / 23⅝"' : '600 / 514 / 600 mm'}) rarely aligns with 16" or 40 cm stud patterns — plan for wall plugs.</div></div>
+          <div class="step"><div class="step-num">6</div><div class="step-text"><strong>Drill and fit wall plugs</strong> at each marked position. Use a plug rated for your wall type (plasterboard, masonry, etc.). Do not skip this step.</div></div>
+          ${modeSpecificSteps}
+          <div class="step"><div class="step-num">9</div><div class="step-text"><strong>Install shelves, doors, and drawer fronts.</strong> Route cables through the cable outlets at the rear before fitting internal components.</div></div>
+        </div>
+        ${modeWarning}
+        <div class="warn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L1.5 13.5h13L8 2z" stroke="#E8A020" stroke-width="1.3" fill="none"/><path d="M8 7v3M8 11.5v.5" stroke="#E8A020" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span><strong>Do not use the BESTÅ suspension rail with TV benches.</strong> The rail is only for BESTÅ cabinet frames (38 cm and 64 cm tall). TV benches use the angle bracket system described above — they are not compatible.</span>
+        </div>
+      </div>
+    </div>
+  `;
+      }
+    </script>
+  </body>
+</html>

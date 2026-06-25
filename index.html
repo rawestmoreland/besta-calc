@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BESTÅ Rail Calculator</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,300&display=swap');
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --cream: #f7f4ee;
+        --dark: #1a1714;
+        --mid: #3d3830;
+        --muted: #8a8274;
+        --accent: #d4622a;
+        --accent-soft: #f0ddd4;
+        --rail-blue: #2c5f8a;
+        --rail-blue-soft: #d6e6f4;
+        --green: #2e6b4a;
+        --green-soft: #d4ebe0;
+        --border: #ddd8d0;
+      }
+
+      body {
+        font-family: 'DM Sans', system-ui, sans-serif;
+        background: var(--cream);
+        color: var(--dark);
+        min-height: 100vh;
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      header {
+        border-bottom: 1.5px solid var(--dark);
+        padding: 18px 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .logo-mark {
+        width: 36px;
+        height: 36px;
+        background: var(--dark);
+        border-radius: 4px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+      }
+      .logo-mark svg {
+        width: 22px;
+        height: 22px;
+      }
+
+      header h1 {
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      header p {
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 300;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        min-height: calc(100vh - 73px);
+      }
+
+      /* ── SIDEBAR ── */
+      .sidebar {
+        border-right: 1.5px solid var(--border);
+        padding: 28px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+        overflow-y: auto;
+      }
+
+      .section-label {
+        font-family: 'DM Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 12px;
+      }
+
+      .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .field label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 6px;
+        color: var(--mid);
+      }
+      .field .hint {
+        font-size: 11.5px;
+        color: var(--muted);
+        margin-top: 4px;
+        font-weight: 300;
+      }
+
+      .units-toggle {
+        display: flex;
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+        width: fit-content;
+      }
+      .units-toggle button {
+        padding: 6px 16px;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--muted);
+        transition: all 0.15s;
+      }
+      .units-toggle button.active {
+        background: var(--dark);
+        color: white;
+      }
+
+      select,
+      input[type='number'] {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        background: white;
+        color: var(--dark);
+        appearance: none;
+        transition: border-color 0.15s;
+      }
+      select:focus,
+      input[type='number']:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238A8274' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 32px;
+      }
+
+      .cabinet-count {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .cabinet-count input[type='number'] {
+        width: 80px;
+      }
+
+      .unit-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 10px 12px;
+        background: white;
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+      }
+      .unit-row .unit-label {
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        color: var(--muted);
+        min-width: 32px;
+        flex-shrink: 0;
+      }
+      .unit-row select {
+        border: none;
+        padding: 0 24px 0 0;
+        font-size: 13px;
+        background-color: transparent;
+        flex: 1;
+      }
+      .unit-row select:focus {
+        border: none;
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 12px;
+        background: var(--dark);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        letter-spacing: -0.01em;
+        transition: opacity 0.15s;
+      }
+      .btn-primary:hover {
+        opacity: 0.85;
+      }
+
+      /* ── MAIN ── */
+      .main {
+        padding: 28px 32px;
+        overflow-y: auto;
+      }
+
+      .placeholder {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        color: var(--muted);
+        text-align: center;
+      }
+      .placeholder svg {
+        opacity: 0.25;
+      }
+      .placeholder p {
+        font-size: 14px;
+        font-weight: 300;
+        max-width: 260px;
+      }
+
+      /* ── RESULTS ── */
+      .results {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .result-header {
+        padding-bottom: 16px;
+        border-bottom: 1.5px solid var(--border);
+      }
+      .result-header h2 {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+      .result-header p {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      .card {
+        background: white;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .card-header {
+        padding: 14px 18px;
+        border-bottom: 1.5px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .card-header .icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+      }
+      .card-header h3 {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .card-body {
+        padding: 16px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .measurement-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px;
+        border-radius: 6px;
+        border: 1.5px solid var(--border);
+      }
+      .measurement-row .m-label {
+        font-size: 13px;
+        color: var(--mid);
+      }
+      .measurement-row .m-value {
+        font-family: 'DM Mono', monospace;
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--dark);
+      }
+      .measurement-row.highlight {
+        background: var(--accent-soft);
+        border-color: var(--accent);
+      }
+      .measurement-row.highlight .m-value {
+        color: var(--accent);
+      }
+      .measurement-row.blue {
+        background: var(--rail-blue-soft);
+        border-color: var(--rail-blue);
+      }
+      .measurement-row.blue .m-value {
+        color: var(--rail-blue);
+      }
+
+      .note {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 10px 14px;
+        background: var(--green-soft);
+        border: 1.5px solid var(--green);
+        border-radius: 6px;
+        font-size: 12.5px;
+        color: #1e4d32;
+        line-height: 1.5;
+      }
+      .note svg {
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      .warn {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 10px 14px;
+        background: #fef3e2;
+        border: 1.5px solid #e8a020;
+        border-radius: 6px;
+        font-size: 12.5px;
+        color: #7a4a00;
+        line-height: 1.5;
+      }
+
+      /* ── DIAGRAM ── */
+      .diagram-wrap {
+        background: white;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+      }
+      .diagram-wrap h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: var(--mid);
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-size: 10.5px;
+      }
+
+      svg.diagram {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .steps-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .step {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .step-num {
+        width: 22px;
+        height: 22px;
+        background: var(--dark);
+        color: white;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-family: 'DM Mono', monospace;
+        font-size: 11px;
+        font-weight: 500;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .step-text {
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--mid);
+      }
+      .step-text strong {
+        color: var(--dark);
+      }
+
+      @media (max-width: 800px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          border-right: none;
+          border-bottom: 1.5px solid var(--border);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo-mark">
+        <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="8" height="8" rx="1" fill="white" />
+          <rect x="12" y="2" width="8" height="8" rx="1" fill="white" />
+          <rect
+            x="2"
+            y="12"
+            width="8"
+            height="8"
+            rx="1"
+            fill="white"
+            opacity="0.4"
+          />
+          <rect x="12" y="12" width="8" height="8" rx="1" fill="white" />
+        </svg>
+      </div>
+      <div>
+        <h1>BESTÅ Rail Calculator</h1>
+        <p>Find exact screw positions before lifting a single cabinet</p>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div>
+          <div class="section-label">Units</div>
+          <div class="units-toggle">
+            <button class="active" onclick="setUnit('mm')">mm</button>
+            <button onclick="setUnit('cm')">cm</button>
+            <button onclick="setUnit('in')">in</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-label">Cabinet configuration</div>
+          <div class="field-group">
+            <div class="field">
+              <label>Desired bottom of cabinet height</label>
+              <input
+                type="number"
+                id="bottom-height"
+                placeholder="e.g. 400"
+                min="0"
+                step="1"
+              />
+              <div class="hint" id="bottom-hint">
+                Distance from floor to where you want the cabinet's bottom edge
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Number of cabinets side by side</label>
+              <div class="cabinet-count">
+                <input
+                  type="number"
+                  id="num-cabinets"
+                  value="1"
+                  min="1"
+                  max="8"
+                  step="1"
+                  style="width: 80px"
+                />
+                <span style="font-size: 13px; color: var(--muted)"
+                  >unit(s)</span
+                >
+              </div>
+            </div>
+
+            <div class="field">
+              <label id="units-label">Cabinet widths</label>
+              <div class="hint" style="margin-bottom: 8px">
+                Select the width of each cabinet
+              </div>
+              <div id="cabinet-selects" class="field-group"></div>
+            </div>
+
+            <div class="field">
+              <label>Cabinet height</label>
+              <select id="cabinet-height">
+                <option value="380">38 cm / 15" (short)</option>
+                <option value="640" selected>64 cm / 25¼" (standard)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-label">Wall details</div>
+          <div class="field-group">
+            <div class="field">
+              <label>Left edge position on wall</label>
+              <input
+                type="number"
+                id="left-edge"
+                placeholder="e.g. 500"
+                min="0"
+                step="1"
+              />
+              <div class="hint">
+                Measured from a reference point (corner, door, etc.)
+              </div>
+            </div>
+            <div class="field">
+              <label>Stud spacing (optional)</label>
+              <select id="stud-spacing">
+                <option value="0">Unknown / not applicable</option>
+                <option value="400">40 cm / 400 mm (European standard)</option>
+                <option value="406">16" / 406 mm (North American)</option>
+                <option value="600">60 cm / 600 mm (some European)</option>
+                <option value="610">24" / 610 mm (North American alt)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="calculate()">
+          Calculate drill positions →
+        </button>
+      </aside>
+
+      <main class="main">
+        <div class="placeholder" id="placeholder">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+            <rect
+              x="8"
+              y="28"
+              width="20"
+              height="28"
+              rx="2"
+              stroke="#1A1714"
+              stroke-width="2"
+            />
+            <rect
+              x="36"
+              y="28"
+              width="20"
+              height="28"
+              rx="2"
+              stroke="#1A1714"
+              stroke-width="2"
+            />
+            <line
+              x1="6"
+              y1="28"
+              x2="58"
+              y2="28"
+              stroke="#D4622A"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            />
+            <circle cx="14" cy="28" r="3" fill="#D4622A" />
+            <circle cx="50" cy="28" r="3" fill="#D4622A" />
+            <line
+              x1="32"
+              y1="16"
+              x2="32"
+              y2="8"
+              stroke="#1A1714"
+              stroke-width="1.5"
+              stroke-dasharray="3 2"
+            />
+            <polyline
+              points="28,12 32,8 36,12"
+              stroke="#1A1714"
+              stroke-width="1.5"
+              stroke-linejoin="round"
+              fill="none"
+            />
+          </svg>
+          <p>Fill in your cabinet configuration to get exact drill positions</p>
+        </div>
+        <div class="results" id="results" style="display: none"></div>
+      </main>
+    </div>
+
+    <script>
+      // ── Constants (all in mm) ──────────────────────────────────────────────
+      const CABINET_WIDTHS_MM = { 60: 600, 120: 1200 };
+      // The BESTA suspension rail hook engages near the very top of the cabinet.
+      // IKEA instructs that the RAIL screw holes sit ~37mm from the top of the cabinet
+      // (same principle as METOD where rail bottom = top - 60mm, but BESTA rail is narrower;
+      // empirically confirmed: hook clips attach at ~top - 37mm on the cabinet back)
+      const RAIL_SCREW_OFFSET_FROM_TOP = 37; // mm: how far below cabinet top the rail screw centre is
+      // Rail width matches cabinet width (one 60cm rail per 60cm cabinet, two for 120cm)
+      // The rail screw holes sit at the very top of the rail strip (≈ 10mm from rail's own top edge)
+      // But from the CABINET's perspective: the hook on the cabinet back sits at top - 37mm
+
+      // BESTA frame widths (nominal mm)
+      // 60cm frame: 598mm actual
+      // 120cm frame: 1196mm actual (gap between is ~4mm filler)
+      const FRAME_ACTUAL = { 60: 598, 120: 1196 };
+
+      let currentUnit = 'mm';
+
+      function setUnit(u) {
+        currentUnit = u;
+        document.querySelectorAll('.units-toggle button').forEach((b) => {
+          b.classList.toggle('active', b.textContent === u);
+        });
+        const hint = document.getElementById('bottom-hint');
+        const labels = {
+          mm: "Distance from floor to where you want the cabinet's bottom edge",
+          cm: 'Distance from floor to bottom edge of cabinet',
+          in: 'Distance from floor to bottom edge of cabinet',
+        };
+        hint.textContent = labels[u];
+        document.getElementById('units-label').textContent =
+          `Cabinet widths (${u === 'in' ? 'inches' : u})`;
+        updateSelectLabels();
+      }
+
+      function toMM(v) {
+        if (currentUnit === 'cm') return v * 10;
+        if (currentUnit === 'in') return v * 25.4;
+        return v;
+      }
+
+      function fromMM(v) {
+        if (currentUnit === 'cm') return +(v / 10).toFixed(1);
+        if (currentUnit === 'in') return +(v / 25.4).toFixed(3);
+        return Math.round(v);
+      }
+
+      function fmt(mm) {
+        const v = fromMM(mm);
+        if (currentUnit === 'in') {
+          // Show as decimal and fraction
+          const whole = Math.floor(v);
+          const frac = v - whole;
+          const fracs = [
+            [1 / 2, '½'],
+            [1 / 4, '¼'],
+            [3 / 4, '¾'],
+            [1 / 8, '⅛'],
+            [3 / 8, '⅜'],
+            [5 / 8, '⅝'],
+            [7 / 8, '⅞'],
+          ];
+          for (const [f, s] of fracs) {
+            if (Math.abs(frac - f) < 0.02)
+              return `${whole > 0 ? whole : ''}${s}"`;
+          }
+          return `${v.toFixed(2)}"`;
+        }
+        if (currentUnit === 'cm') return `${v} cm`;
+        return `${v} mm`;
+      }
+
+      function updateSelectLabels() {
+        const selects = document.querySelectorAll('#cabinet-selects select');
+        selects.forEach((s) => {
+          const val = s.value;
+          s.innerHTML = unitOptions();
+          s.value = val;
+        });
+      }
+
+      function unitOptions() {
+        if (currentUnit === 'in') {
+          return `<option value="60">23⅝" wide</option><option value="120">47¼" wide</option>`;
+        }
+        return `<option value="60">60 cm wide</option><option value="120">120 cm wide</option>`;
+      }
+
+      function rebuildSelects() {
+        const n = parseInt(document.getElementById('num-cabinets').value) || 1;
+        const container = document.getElementById('cabinet-selects');
+        const existing = container.querySelectorAll('select');
+        const vals = [...existing].map((s) => s.value);
+
+        container.innerHTML = '';
+        for (let i = 0; i < n; i++) {
+          const row = document.createElement('div');
+          row.className = 'unit-row';
+          row.innerHTML = `<span class="unit-label">#${i + 1}</span><select>${unitOptions()}</select>`;
+          if (vals[i]) row.querySelector('select').value = vals[i];
+          container.appendChild(row);
+        }
+      }
+
+      document
+        .getElementById('num-cabinets')
+        .addEventListener('input', rebuildSelects);
+      rebuildSelects();
+
+      function calculate() {
+        const bottomHeightInput = parseFloat(
+          document.getElementById('bottom-height').value,
+        );
+        if (isNaN(bottomHeightInput) || bottomHeightInput < 0) {
+          alert('Please enter a valid bottom height.');
+          return;
+        }
+        const bottomHeightMM = toMM(bottomHeightInput);
+        const cabinetHeightMM = parseInt(
+          document.getElementById('cabinet-height').value,
+        );
+        const topHeightMM = bottomHeightMM + cabinetHeightMM;
+
+        // Rail screw centre height from floor
+        const railScrewHeightMM = topHeightMM - RAIL_SCREW_OFFSET_FROM_TOP;
+
+        // Gather cabinet widths
+        const selects = document.querySelectorAll('#cabinet-selects select');
+        const cabWidths = [...selects].map((s) => parseInt(s.value)); // in cm keys
+
+        const leftEdgeInput =
+          parseFloat(document.getElementById('left-edge').value) || 0;
+        const leftEdgeMM = toMM(leftEdgeInput);
+        const studSpacing = parseInt(
+          document.getElementById('stud-spacing').value,
+        );
+
+        // Build cabinet layout
+        let cumulativeX = leftEdgeMM;
+        const cabinets = cabWidths.map((w, i) => {
+          const actualW = FRAME_ACTUAL[String(w)];
+          const numRails = w === 60 ? 1 : 2;
+          const rails = [];
+
+          if (w === 60) {
+            // Single rail, centred within cabinet
+            rails.push({
+              x: cumulativeX + actualW / 2,
+              label: `Rail ${i + 1}`,
+            });
+          } else {
+            // Two rails at ¼ and ¾ positions
+            rails.push({
+              x: cumulativeX + actualW * 0.25,
+              label: `Rail ${i + 1}A`,
+            });
+            rails.push({
+              x: cumulativeX + actualW * 0.75,
+              label: `Rail ${i + 1}B`,
+            });
+          }
+
+          const cab = {
+            index: i + 1,
+            width: w,
+            actualW,
+            startX: cumulativeX,
+            endX: cumulativeX + actualW,
+            numRails,
+            rails,
+          };
+          cumulativeX += actualW + 4; // 4mm gap between frames
+          return cab;
+        });
+
+        const totalWidthMM = cumulativeX - leftEdgeMM - 4;
+
+        // Stud hint
+        let studHints = [];
+        if (studSpacing > 0) {
+          // Starting from leftEdge, find where studs would be within cabinet range
+          const start = leftEdgeMM;
+          const end = leftEdgeMM + totalWidthMM;
+          for (let x = 0; x <= end + studSpacing; x += studSpacing) {
+            if (x >= start - studSpacing && x <= end + studSpacing)
+              studHints.push(x);
+          }
+        }
+
+        // Render
+        document.getElementById('placeholder').style.display = 'none';
+        const resultsEl = document.getElementById('results');
+        resultsEl.style.display = 'flex';
+
+        resultsEl.innerHTML = `
+    <div class="result-header">
+      <h2>Drill positions for your BESTÅ</h2>
+      <p>${cabWidths.length} cabinet${cabWidths.length > 1 ? 's' : ''} · ${fmt(totalWidthMM)} total width · ${document.getElementById('cabinet-height').options[document.getElementById('cabinet-height').selectedIndex].text}</p>
+    </div>
+
+    ${renderKeyMeasurements(bottomHeightMM, topHeightMM, railScrewHeightMM, totalWidthMM)}
+    ${renderCabinetCards(cabinets, railScrewHeightMM)}
+    ${renderDiagram(cabinets, bottomHeightMM, topHeightMM, railScrewHeightMM, leftEdgeMM)}
+    ${renderInstructions(cabinets, railScrewHeightMM)}
+  `;
+      }
+
+      function renderKeyMeasurements(bottom, top, railH, totalW) {
+        return `
+    <div class="card">
+      <div class="card-header">
+        <div class="icon" style="background:var(--accent-soft)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8h12M8 2v12" stroke="#D4622A" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="8" r="2.5" stroke="#D4622A" stroke-width="1.5"/></svg>
+        </div>
+        <h3>Key heights from floor</h3>
+      </div>
+      <div class="card-body">
+        <div class="measurement-row">
+          <span class="m-label">Cabinet bottom edge</span>
+          <span class="m-value">${fmt(bottom)}</span>
+        </div>
+        <div class="measurement-row">
+          <span class="m-label">Cabinet top edge</span>
+          <span class="m-value">${fmt(top)}</span>
+        </div>
+        <div class="measurement-row highlight">
+          <span class="m-label">🎯 Rail screw centre height</span>
+          <span class="m-value">${fmt(railH)}</span>
+        </div>
+        <div class="note">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#2E6B4A" stroke-width="1.3"/><path d="M8 7v4M8 5.5v.5" stroke="#2E6B4A" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span>Draw a perfectly level line at <strong>${fmt(railH)}</strong> from the floor. This is where every screw goes — on this single horizontal line.</span>
+        </div>
+      </div>
+    </div>
+  `;
+      }
+
+      function renderCabinetCards(cabinets, railH) {
+        return cabinets
+          .map((cab) => {
+            const railRows = cab.rails
+              .map(
+                (r) => `
+      <div class="measurement-row blue">
+        <span class="m-label">${r.label} — horizontal position from left edge</span>
+        <span class="m-value">${fmt(r.x)}</span>
+      </div>
+    `,
+              )
+              .join('');
+
+            const railNote =
+              cab.width === 120
+                ? `<div class="note"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#2E6B4A" stroke-width="1.3"/><path d="M8 7v4M8 5.5v.5" stroke="#2E6B4A" stroke-width="1.3" stroke-linecap="round"/></svg><span>120 cm frames need <strong>2 rails</strong>, positioned at roughly ¼ and ¾ across the cabinet width.</span></div>`
+                : '';
+
+            return `
+      <div class="card">
+        <div class="card-header">
+          <div class="icon" style="background:#EEF2FF">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="6" width="12" height="8" rx="1.5" stroke="#3D50C3" stroke-width="1.3"/><path d="M5 6V4.5a3 3 0 016 0V6" stroke="#3D50C3" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Cabinet ${cab.index} — ${cab.width} cm wide</h3>
+        </div>
+        <div class="card-body">
+          <div class="measurement-row">
+            <span class="m-label">Left edge of cabinet</span>
+            <span class="m-value">${fmt(cab.startX)}</span>
+          </div>
+          <div class="measurement-row">
+            <span class="m-label">Right edge of cabinet</span>
+            <span class="m-value">${fmt(cab.endX)}</span>
+          </div>
+          ${railRows}
+          ${railNote}
+        </div>
+      </div>
+    `;
+          })
+          .join('');
+      }
+
+      function renderDiagram(cabinets, bottom, top, railH, leftEdge) {
+        const allRight = cabinets[cabinets.length - 1].endX;
+        const totalW = allRight - leftEdge;
+
+        // SVG coordinate system
+        const W = 660,
+          H = 300;
+        const margin = { top: 30, right: 60, bottom: 40, left: 70 };
+        const drawW = W - margin.left - margin.right;
+        const drawH = H - margin.top - margin.bottom;
+
+        // Map mm → SVG
+        const xScale = (v) => margin.left + ((v - leftEdge) / totalW) * drawW;
+        const maxH = top + 60;
+        const yScale = (v) => H - margin.bottom - (v / maxH) * drawH;
+
+        let svgContent = '';
+
+        // Floor line
+        svgContent += `<line x1="${margin.left}" y1="${yScale(0)}" x2="${W - margin.right}" y2="${yScale(0)}" stroke="#8A8274" stroke-width="1" stroke-dasharray="4 3"/>`;
+        svgContent += `<text x="${margin.left - 5}" y="${yScale(0) + 4}" text-anchor="end" font-size="9" fill="#8A8274" font-family="DM Mono,monospace">FLOOR</text>`;
+
+        // Rail line (the target height)
+        svgContent += `<line x1="${margin.left}" y1="${yScale(railH)}" x2="${W - margin.right}" y2="${yScale(railH)}" stroke="#D4622A" stroke-width="2" stroke-dasharray="6 3"/>`;
+        svgContent += `<text x="${W - margin.right + 6}" y="${yScale(railH) + 4}" font-size="9" fill="#D4622A" font-family="DM Mono,monospace">${fmt(railH)}</text>`;
+
+        // Cabinet top line
+        svgContent += `<line x1="${margin.left}" y1="${yScale(top)}" x2="${W - margin.right}" y2="${yScale(top)}" stroke="#3D3830" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>`;
+        svgContent += `<text x="${W - margin.right + 6}" y="${yScale(top) + 4}" font-size="9" fill="#3D3830" font-family="DM Mono,monospace" opacity="0.6">${fmt(top)}</text>`;
+
+        // Cabinets
+        cabinets.forEach((cab, i) => {
+          const x1 = xScale(cab.startX);
+          const x2 = xScale(cab.endX);
+          const y1 = yScale(top);
+          const y2 = yScale(bottom);
+          svgContent += `<rect x="${x1 + 1}" y="${y1}" width="${x2 - x1 - 2}" height="${y2 - y1}" fill="#F0DDD4" stroke="#D4622A" stroke-width="1.5" rx="2"/>`;
+          // Cabinet label
+          svgContent += `<text x="${(x1 + x2) / 2}" y="${(y1 + y2) / 2 + 5}" text-anchor="middle" font-size="11" fill="#3D3830" font-family="DM Sans,sans-serif" font-weight="500">#${i + 1} — ${cab.width}cm</text>`;
+
+          // Rail screw markers
+          cab.rails.forEach((r) => {
+            const rx = xScale(r.x);
+            const ry = yScale(railH);
+            svgContent += `<circle cx="${rx}" cy="${ry}" r="6" fill="#D4622A" stroke="white" stroke-width="1.5"/>`;
+            svgContent += `<line x1="${rx}" y1="${ry - 6}" x2="${rx}" y2="${yScale(top) + 1}" stroke="#D4622A" stroke-width="1" stroke-dasharray="2 2" opacity="0.6"/>`;
+          });
+        });
+
+        // Dimension arrow: bottom height
+        const arrowX = margin.left - 22;
+        svgContent += `
+    <line x1="${arrowX}" y1="${yScale(0)}" x2="${arrowX}" y2="${yScale(bottom)}" stroke="#1A1714" stroke-width="1"/>
+    <line x1="${arrowX - 4}" y1="${yScale(bottom) + 3}" x2="${arrowX}" y2="${yScale(bottom) - 2}" stroke="#1A1714" stroke-width="1"/>
+    <line x1="${arrowX + 4}" y1="${yScale(bottom) + 3}" x2="${arrowX}" y2="${yScale(bottom) - 2}" stroke="#1A1714" stroke-width="1"/>
+    <text transform="translate(${arrowX - 8}, ${(yScale(0) + yScale(bottom)) / 2}) rotate(-90)" text-anchor="middle" font-size="9" fill="#3D3830" font-family="DM Mono,monospace">${fmt(bottom)}</text>
+  `;
+
+        // Legend
+        svgContent += `
+    <circle cx="${margin.left + 12}" cy="${H - 10}" r="5" fill="#D4622A"/>
+    <text x="${margin.left + 22}" y="${H - 6}" font-size="9" fill="#3D3830" font-family="DM Sans,sans-serif">Screw position</text>
+    <line x1="${margin.left + 110}" y1="${H - 10}" x2="${margin.left + 126}" y2="${H - 10}" stroke="#D4622A" stroke-width="2" stroke-dasharray="4 2"/>
+    <text x="${margin.left + 132}" y="${H - 6}" font-size="9" fill="#3D3830" font-family="DM Sans,sans-serif">Rail height line</text>
+  `;
+
+        return `
+    <div class="diagram-wrap">
+      <h3>Wall diagram (front view)</h3>
+      <svg class="diagram" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+        ${svgContent}
+      </svg>
+    </div>
+  `;
+      }
+
+      function renderInstructions(cabinets, railH) {
+        const allRails = cabinets.flatMap((c) => c.rails);
+
+        const railList = allRails
+          .map((r) => `<strong>${r.label}</strong> at ${fmt(r.x)}`)
+          .join(', ');
+
+        return `
+    <div class="card">
+      <div class="card-header">
+        <div class="icon" style="background:var(--green-soft)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3 3 7-7" stroke="#2E6B4A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Step-by-step installation</h3>
+      </div>
+      <div class="card-body">
+        <div class="steps-list">
+          <div class="step"><div class="step-num">1</div><div class="step-text">Assemble your BESTÅ cabinet(s) fully on the floor — doors, hinges, everything except legs.</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-text">Draw a perfectly <strong>level horizontal line</strong> on the wall at <strong>${fmt(railH)}</strong> from the floor. Use a laser level or spirit level. This single line is where all your screws go.</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-text">Mark the <strong>vertical positions</strong> of each rail screw along that line: ${railList}.</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Find studs</strong> along that line using a stud finder. The BESTÅ rail has many holes — there's always one near a stud. If there's no stud, use rated drywall anchors (at least 75 lbs / 35 kg each).</div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-text">Hold each rail against the wall, centred horizontally on its cabinet position. The <strong>top edge of the rail</strong> sits on your line. Mark through the holes that align with studs or chosen anchor spots.</div></div>
+          <div class="step"><div class="step-num">6</div><div class="step-text">Drill and <strong>install anchors or drive screws</strong> into studs. Mount all rails. Use a connector clip to join adjacent rails for perfect alignment.</div></div>
+          <div class="step"><div class="step-num">7</div><div class="step-text"><strong>Hook the cabinet</strong> onto the rail from above — you'll need ≥ 5 cm (2") clearance above the cabinet to ceiling to tilt it up onto the rail. The clips on the cabinet back click onto the rail.</div></div>
+          <div class="step"><div class="step-num">8</div><div class="step-text">Secure with the <strong>locking clips and screws</strong> included with the rail. Check level and adjust. Snap on the white plastic covers.</div></div>
+        </div>
+        <div class="warn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px"><path d="M8 2L1.5 13.5h13L8 2z" stroke="#E8A020" stroke-width="1.3" fill="none"/><path d="M8 7v3M8 11.5v.5" stroke="#E8A020" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span><strong>Not for BESTÅ TV benches.</strong> The suspension rail system only works with BESTÅ cabinet frames (60 cm and 120 cm wide), not the wide TV bench units. TV benches have their own separate wall-anchoring method.</span>
+        </div>
+      </div>
+    </div>
+  `;
+      }
+    </script>
+  </body>
+</html>
