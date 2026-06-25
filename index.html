@@ -850,7 +850,7 @@
               .map(
                 (r) => `
       <div class="measurement-row blue">
-        <span class="m-label">${r.label} — horizontal position from left edge</span>
+        <span class="m-label">${r.label} — rail centre from left edge</span>
         <span class="m-value">${fmt(r.x)}</span>
       </div>
     `,
@@ -949,7 +949,7 @@
         // Legend
         svgContent += `
     <circle cx="${margin.left + 12}" cy="${H - 10}" r="5" fill="#D4622A"/>
-    <text x="${margin.left + 22}" y="${H - 6}" font-size="9" fill="#3D3830" font-family="DM Sans,sans-serif">Screw position</text>
+    <text x="${margin.left + 22}" y="${H - 6}" font-size="9" fill="#3D3830" font-family="DM Sans,sans-serif">Rail centre (pick screw holes per studs)</text>
     <line x1="${margin.left + 110}" y1="${H - 10}" x2="${margin.left + 126}" y2="${H - 10}" stroke="#D4622A" stroke-width="2" stroke-dasharray="4 2"/>
     <text x="${margin.left + 132}" y="${H - 6}" font-size="9" fill="#3D3830" font-family="DM Sans,sans-serif">Rail height line</text>
   `;
