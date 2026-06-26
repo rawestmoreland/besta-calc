@@ -26,7 +26,7 @@ No install step, no build step, no server required.
 Each HTML file contains all CSS, HTML markup, and JavaScript inline — no external JS files, no frameworks, no modules. Vanilla JS only.
 
 **`index.html` key constants (all measurements in mm internally):**
-- `RAIL_SCREW_OFFSET_FROM_TOP = 37` — empirically confirmed offset from cabinet top to rail screw centre
+- `RAIL_SCREW_OFFSET_FROM_TOP = 46.5` — empirically confirmed offset from cabinet top to rail screw centre (measured on 64 cm cabinet: bottom at 36.25 cm, screw at 95.6 cm)
 - `FRAME_ACTUAL` — actual frame dimensions (598 mm for 60 cm nominal, 1196 mm for 120 cm nominal)
 - 4 mm gap is added between adjacent frames when computing cumulative positions
 - 120 cm cabinets require 2 rails at ¼ and ¾ of actual width

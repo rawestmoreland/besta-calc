@@ -264,10 +264,9 @@
       // ── Constants (all in mm) ──────────────────────────────────────────────
       const CABINET_WIDTHS_MM = { 60: 600, 120: 1200 };
       // The BESTA suspension rail hook engages near the very top of the cabinet.
-      // IKEA instructs that the RAIL screw holes sit ~37mm from the top of the cabinet
-      // (same principle as METOD where rail bottom = top - 60mm, but BESTA rail is narrower;
-      // empirically confirmed: hook clips attach at ~top - 37mm on the cabinet back)
-      const RAIL_SCREW_OFFSET_FROM_TOP = 37; // mm: how far below cabinet top the rail screw centre is
+      // Empirically confirmed on a 64 cm cabinet: bottom at 36.25 cm, screw centre at 95.6 cm
+      // → offset = (36.25 + 64) - 95.6 = 4.65 cm = 46.5 mm
+      const RAIL_SCREW_OFFSET_FROM_TOP = 46.5; // mm: how far below cabinet top the rail screw centre is
       // Rail width matches cabinet width (one 60cm rail per 60cm cabinet, two for 120cm)
       // The rail screw holes sit at the very top of the rail strip (≈ 10mm from rail's own top edge)
       // But from the CABINET's perspective: the hook on the cabinet back sits at top - 37mm
