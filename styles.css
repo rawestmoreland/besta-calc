@@ -473,6 +473,9 @@ svg.diagram {
 @media (max-width: 600px) {
   header {
     padding: 14px 16px;
+    flex-direction: column;
+    align-items: start;
+    gap: 16px;
   }
   .sidebar {
     padding: 20px 16px;
