@@ -168,7 +168,7 @@
           </div>
         </div>
 
-        <button class="btn-primary" onclick="calculate()">
+        <button class="btn-primary" onclick="calculate(true)">
           Calculate drill positions
         </button>
       </aside>
@@ -257,6 +257,7 @@
         // Re-sync input placeholder values to selected unit
         syncInputPlaceholders();
         onConfigChange();
+        gtag('event', 'unit_change', { calculator: 'tv_bench', unit: u });
       }
 
       function setMode(m) {
@@ -288,6 +289,7 @@
           if (parseFloat(input.value) > 20 && unit === 'cm') input.value = 10;
           if (parseFloat(input.value) > 8 && unit === 'in') input.value = '3.9';
         }
+        gtag('event', 'mode_change', { calculator: 'tv_bench', mode: m });
         onConfigChange();
       }
 
@@ -321,7 +323,7 @@
         if (main.querySelector('.results')) calculate();
       }
 
-      function calculate() {
+      function calculate(fromUser = false) {
         const widthKey = parseInt(document.getElementById('benchWidth').value);
         const cfg = BRACKET_CONFIGS[widthKey];
         const bottomInputMM = toMM(
@@ -352,6 +354,14 @@
       ${renderInstructions(bracketXPositions, screwHeightFromFloor, widthKey, mode)}
     </div>
   `;
+        if (fromUser) {
+          gtag('event', 'calculate', {
+            calculator: 'tv_bench',
+            bench_width: widthKey,
+            mode: mode,
+            unit: unit,
+          });
+        }
       }
 
       function renderResultHeader(width, mode, bottom, top) {

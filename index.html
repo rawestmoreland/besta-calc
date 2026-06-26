@@ -245,6 +245,7 @@
         document.getElementById('units-label').textContent =
           `Cabinet widths (${u === 'in' ? 'inches' : u})`;
         updateSelectLabels();
+        gtag('event', 'unit_change', { calculator: 'suspension_rail', unit: u });
       }
 
       function toMM(v) {
@@ -417,6 +418,13 @@
     ${renderDiagram(cabinets, bottomHeightMM, topHeightMM, railScrewHeightMM, leftEdgeMM, studHints)}
     ${renderInstructions(cabinets, railScrewHeightMM)}
   `;
+        gtag('event', 'calculate', {
+          calculator: 'suspension_rail',
+          cabinet_count: cabWidths.length,
+          cabinet_height_mm: cabinetHeightMM,
+          stud_spacing: studSpacing,
+          unit: currentUnit,
+        });
       }
 
       function renderKeyMeasurements(bottom, top, railH, totalW) {
